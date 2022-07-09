@@ -10,4 +10,5 @@ def openGUI():
     app.exec()
 
 if __name__ == "__main__":
-    print("This file can't be executed on its own, try main.py")
+    print("This file shouldn't be executed on its own, try main.py")
+    openGUI()

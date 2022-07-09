@@ -80,17 +80,16 @@ def add_grades_constraints(prob, grid_vars, days, classes, grades, teachers, ava
 
 
 # Adds the teachers constraints to the problem
-def add_teachers_constraints(prob, grid_vars, days, classes, grades, teachers, available_classes):
+def add_teachers_constraints(prob, grid_vars, days, classes, grades, teachers, available_time):
 
     # Constraint to ensure only classes available to the grade are used
-    for day in days:
-        for clas in classes:
-            for grade in grades:
-                if (available_classes[day][clas][grade]):
-                    prob.addConstraint(plp.LpConstraint(e= plp.lpSum([grid_vars[day][clas][grade][teacher]*teacher for teacher in teachers]),
-                                                        sense= plp.LpConstraitEQ,
-                                                        name= f"constraint_not_available_{day}_{clas}_{grade}",
-                                                        rhs= available_classes[day][clas][grade]))
+    for teacher in teachers:
+        for day in days:
+            for clas in classes:
+                prob.addConstraint(plp.LpConstraint(e= plp.lpSum([sum(grid_vars[day][clas][grade][teacher]) for grade in grades]),
+                                                    serve= plp.LpConstraitEQ,
+                                                    name= f"constraint_teacher_available_classes_{teacher}_{day}_{clas}",
+                                                    rhs = available_time[teacher][day][clas]))
 
 if __name__ == "__main__":
     print("This file can't be executed on its own, try main.py")
