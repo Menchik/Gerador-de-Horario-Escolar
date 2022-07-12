@@ -1,52 +1,25 @@
-from tkinter import Widget
 from PyQt6.QtWidgets import (
     QMainWindow,QWidget,
     QVBoxLayout, QHBoxLayout, QGridLayout, QStackedLayout, QFormLayout,
-    QLineEdit, QLabel, QSpinBox, QPushButton, QTabWidget
+    QLineEdit, QLabel, QSpinBox, QPushButton, QTabWidget, QToolBar, QDialog, QDialogButtonBox
 )
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPalette, QColor
+from PyQt6.QtGui import QAction
 
+from guiClasses.teachersWindow import TeachersWindow
+from guiClasses.gradesWindow import GradesWindow
+from guiClasses.warning import CustomDialog
 
-class TeachersWindow(QWidget):
-    def __init__(self, size):
-        super().__init__()
-
-        self.setWindowTitle("Professores")
-
-        self.setMinimumSize(size)
-
-        layout = QFormLayout()
-
-        tab = QTabWidget()
-        for color,name in [("red", "Mauro"), ("green", "Pedro"), ("blue", "Bianca"), ("yellow", "Geraldo")]:
-            tab.addTab(Color(color), name)
-
-        layout.addWidget(tab)
-        self.setLayout(layout)
-
-class GradesWindow(QWidget):
-    def __init__(self, size):
-        super().__init__()
-
-        self.setWindowTitle("Turmas")
-
-        self.setMinimumSize(size)
-
-        layout = QFormLayout()
-
-        tab = QTabWidget()
-        for color,name in [("purple", "Quinto"), ("black", "Sexto"), ("orange", "Sétimo")]:
-            tab.addTab(Color(color), name)
-
-        layout.addWidget(tab)
-        self.setLayout(layout)
 
 
 class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+
+        self.tw = None
+        self.gw = None
+
         layout = QVBoxLayout()
 
         self.setWindowTitle("Criador de Horários")
@@ -66,20 +39,32 @@ class MainWindow(QMainWindow):
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
+        toolbar = QToolBar("Teste")
+        self.addToolBar(toolbar)
+
+        button_action = QAction("Button", self)
+        button_action.setStatusTip("This is your button")
+        button_action.triggered.connect(self.onMyButtonClick)
+        toolbar.addAction(button_action)
+
+    def onMyButtonClick(self, s):
+        print("click", s)
+        dlg = CustomDialog(self)
+        if  dlg.exec():
+            print("Cool")
+        else:
+            print("Shit")
+
     def show_teachers_window(self):
-        self.w = TeachersWindow(self.size())
-        self.w.show()
+        if self.tw is None:
+            self.tw = TeachersWindow(self.size())
+            self.tw.show()
+        else:
+            print("Already opened")
     
     def show_grades_window(self):
-        self.w = GradesWindow(self.size())
-        self.w.show()
-
-class Color(QWidget):
-
-    def __init__(self, color):
-        super(Color, self).__init__()
-        self.setAutoFillBackground(True)
-
-        palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Window, QColor(color))
-        self.setPalette(palette)
+        if self.gw is None:
+            self.gw = GradesWindow(self.size())
+            self.gw.show()
+        else:
+            print("Already opened")
