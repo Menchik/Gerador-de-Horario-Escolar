@@ -158,9 +158,10 @@ def returnInput():
 
     ########  TEMPORARY  ########
     days = range(0,2)
-    classes = range(0,4)
+    classes = range(0,2)
     grades = range(0, 2)
-    teachers = range(0,2)
+    teachers = range(0,2+1)
+
     available_classes = [
         #days
         #Mon
@@ -168,51 +169,55 @@ def returnInput():
             #classes
             #7:00
             # #grades
-            [1,0],
+            [1,1],
             #7:50
-            [0,1],
-            #7:00
-            [0,0],
-            #7:00
-            [0,0],
+            [1,1],
         ],
         #Tue
         [
             #7:00
-            [1,0],
+            [1,1],
             #7:50
-            [0,1],
-            #7:00
-            [0,0],
-            #7:00
-            [0,0],
+            [1,1],
         ],
     ]
+
     necessary_classes = [
         #G1
-        [1,1],
+        [2,2],
         #G2
-        [1,1]
+        [2,1]
     ]
 
     available_time = [
-        #T1
+        #MON
         [
-            #MON
-            [1,1,1,1],
-            #TUE
-            [1,1,1,1]
+            #7:00
+            [1,1],
+            #7:50
+            [1,1]
         ],
-        #T2
+        #TUE
         [
-            #MON
-            [0,0,1,1],
-            #TUE
-            [0,0,1,1]
+            #7:00
+            [1,0],
+            #7:50
+            [1,1]
         ]
     ]
+
+    total_aulas = len(days)*len(classes)
+
+    for grade in grades:
+            soma = 0
+            for day in days:
+                for clas in classes:
+                    soma += available_classes[day][clas][grade]
+            necessary_classes[grade].append(total_aulas-soma)
+
 
     return days, classes, grades, teachers, available_time, available_classes, necessary_classes
 
 if __name__ == "__main__":
+    returnInput()
     print("This file can't be executed on its own, try main.py")

@@ -5,19 +5,19 @@
 
 import pulp as plp
 
+nomes=["maria", "joao", "####"]
+
 def printSolution(solution, days, classes, grades):
 
     # Print the final result
     print(f"Final result:")
     
-    for grade in grades:
-        print(f"GRADE {grade}:\n+ ------- + ------- + ------- +",end="\n")
-        for day in days:
-            print
-            print(f"DAY {day}:")
-            for clas in classes:
+    for day in days:
+        print(f"\nDIA {day}:", end="")
+        for clas in classes:
+            print(f"\n    AULA {clas}:\n        |   T1  |  T2  |", end="\n        | ")
+            for grade in grades:
                 print(solution[day][clas][grade],end=" | ")
-            print("\n+ ------- ",end="\n")
 
 def extract_solution(grid_vars, days, classes, grades, teachers):
     solution = [[[0 for grade in grades] for clas in classes] for day in days]
@@ -26,7 +26,7 @@ def extract_solution(grid_vars, days, classes, grades, teachers):
             for grade in grades:
                 for teacher in teachers:
                     if plp.value(grid_vars[day][clas][grade][teacher]):
-                        solution[day][clas][grade] = teacher 
+                        solution[day][clas][grade] = nomes[teacher]
     return solution
 
 def solve(days, classes, grades, teachers, available_time, available_classes, necessary_classes):
@@ -40,6 +40,8 @@ def solve(days, classes, grades, teachers, available_time, available_classes, ne
 
     # Create all of the constraints needed for the problem
     add_constraints(prob, grid_vars, days, classes, grades, teachers, available_time, available_classes, necessary_classes)
+
+    prob.writeLP("filename.txt", writeSOS=1, mip=1, max_length=100)
 
     # Solve the problem given all constraints
     prob.solve()
@@ -59,13 +61,14 @@ def solve(days, classes, grades, teachers, available_time, available_classes, ne
 def add_constraints(prob, grid_vars, days, classes, grades, teachers, available_time, available_classes, necessary_classes):
 
     add_scheduler_constraints(prob, grid_vars, days, classes, grades, teachers)
-    #add_teachers_constraints(prob, grid_vars, days, classes, grades, teachers, available_time)
+    add_teachers_constraints(prob, grid_vars, days, classes, grades, teachers, available_time)
     add_grades_constraints(prob, grid_vars, days, classes, grades, teachers, available_classes, necessary_classes)
 
 # Adds the default constraints of a scheduler to the LP problem
 def add_scheduler_constraints(prob, grid_vars, days, classes, grades, teachers):
 
     # Constraint to ensure only one teacher is assigned a especific class of a grade in a day
+    ############### WORKING ###############
     for day in days:
         for clas in classes:
             for grade in grades:
@@ -75,43 +78,52 @@ def add_scheduler_constraints(prob, grid_vars, days, classes, grades, teachers):
                                                     name= f"constraint_sum_{day}_{clas}_{grade}"))
 
     # Constraint to ensure a teacher will not be assigned two classes at the same time
+    ############### WORKING ###############
     for day in days:
         for clas in classes:
-            for teacher in teachers:
-                prob.addConstraint(plp.LpConstraint(e= plp.lpSum([grid_vars[day][clas][grade][teacher]*teacher for grade in grades]),
-                                                    sense= plp.LpConstraintEQ,
-                                                    rhs= teacher,
-                                                    name= f"constraint_uniq_grade_{day}_{clas}_{grade}_{teacher}"))
+            for teacher in teachers[:-1]:
+                prob.addConstraint(plp.LpConstraint(e= plp.lpSum([grid_vars[day][clas][grade][teacher] for grade in grades]),
+                                                    sense= plp.LpConstraintLE,
+                                                    rhs= 1,
+                                                    name= f"constraint_uniq_grade_{day}_{clas}_{teacher}"))
 
 # Adds the grades constraints to the problem
 def add_grades_constraints(prob, grid_vars, days, classes, grades, teachers, available_classes, necessary_classes):
 
     # Constraint to ensure only classes available to the grade are used
+    ############### WORKING ###############
     for day in days:
         for clas in classes:
             for grade in grades:
-                if (available_classes[day][clas][grade]):
-                    prob.addConstraint(plp.LpConstraint(e= plp.lpSum([grid_vars[day][clas][grade][teacher] for teacher in teachers]),
+                if (not available_classes[day][clas][grade]):
+                    prob.addConstraint(plp.LpConstraint(e= plp.lpSum([grid_vars[day][clas][grade][teacher]*teacher for teacher in teachers]),
                                                         sense= plp.LpConstraintEQ,
-                                                        rhs= available_classes[day][clas][grade],
+                                                        rhs= teachers[-1],
                                                         name= f"constraint_not_available_{day}_{clas}_{grade}"))
 
     # Constraint to ensure the grades has the necessary amount of classes from every teacher
-    # for teacher in teachers:
-    #     for grade in grades:
-    #         prob.addConstraint(plp.LpConstraint(e= plp.lpSum([grid_vars[day][clas][grade][teacher] for clas in classes for day in days]),
-    #                                             sense= plp.LpConstraintEQ,
-    #                                             rhs= necessary_classes[teacher][grade],
-    #                                             name= f"constraint_necessary_amount_of_classes_{teacher}_{grade}"))
+    ############### WORKING ###############
+    for grade in grades:
+        for teacher in teachers[:-1]:
+            prob.addConstraint(plp.LpConstraint(e= plp.lpSum([grid_vars[day][clas][grade][teacher] for clas in classes for day in days]),
+                                                sense= plp.LpConstraintEQ,
+                                                rhs= necessary_classes[grade][teacher],
+                                                name= f"constraint_necessary_amount_of_classes_{teacher}_{grade}"))
+        # Constraint to enable None as an available teacher
+        prob.addConstraint(plp.LpConstraint(e= plp.lpSum([grid_vars[day][clas][grade][teachers[-1]]for clas in classes for day in days]),
+                                            sense= plp.LpConstraintLE,
+                                            rhs= len(days)*len(classes),
+                                            name= f"constraint_necessary_amount_of_classes_{teachers[-1]}_{grade}"))
 
 
 #Adds the teachers constraints to the problem
 def add_teachers_constraints(prob, grid_vars, days, classes, grades, teachers, available_time):
 
     # Constraint to ensure only classes available by the teacher are considered
-    for teacher in teachers:
-        for day in days:
-            for clas in classes:
+    ############### WORKING ###############
+    for day in days:
+        for clas in classes:
+            for teacher in teachers[:-1]:
                 prob.addConstraint(plp.LpConstraint(e= plp.lpSum([grid_vars[day][clas][grade][teacher] for grade in grades]),
                                                     sense= plp.LpConstraintLE,
                                                     rhs = available_time[teacher][day][clas],
