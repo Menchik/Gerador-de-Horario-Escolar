@@ -1,239 +1,40 @@
-import json 
+import json
 
 def get_data():
     with open("myfile.json", "r") as input_file:
         data = json.load(input_file)
         return data
 
+def get_number_of_grades():
+    names = get_grades_names()
+    return len(names)
+
+def get_grades_names():
+    new_data = get_data()
+    return new_data["Turmas"]["Nomes"]
+
+def get_number_of_teachers():
+    names = get_teacher_names()
+    return len(names)
+
+def get_teacher_names():
+    new_data = get_data()
+    return new_data["Professores"]["Nomes"]
+
 def save_to_file(new_data):
     new_data = json.dumps(new_data, indent=6)
     with open("myfile.json", "w") as file:
         file.write(new_data)
 
-def returnInput():
-
-    out_file = open("myfile.json", "a")
-
-    read_file = open("myfile.json", "r")
-
-    data = json.load(read_file)
-
-    out_file["emp1"] = {
-            "name": "Marcus",
-            "designation": "programmer",
-            "age": "34",
-            "salary": "54000"
-      }
-        
-    out_file.close()
-    read_file.close()
-
-
-    # ########  TEMPORARY  ########
-    # days = range(0,5)
-    # classes = range(0,11)
-    # grades = range(0, 8)
-    # teachers = range(0,10)
-    # available_classes = [
-    #     #days
-    #     #Mon
-    #     [
-    #         #classes
-    #         #7:00
-    #         # #grades
-    #         [0,0,0,0,0,0,0,0],
-    #         #7:50
-    #         [0,0,0,0,0,0,0,0],
-    #         #8:55
-    #         [0,0,0,0,0,0,0,0],
-    #         #9:40
-    #         [0,0,0,0,0,0,0,0],
-    #         #10:40
-    #         [0,0,0,0,0,0,0,0],
-    #         #11:25
-    #         [0,0,0,0,0,0,0,0],
-    #         #13:30
-    #         [0,0,0,0,0,0,0,0],
-    #         #14:15
-    #         [0,0,0,0,0,0,0,0],
-    #         #15:15
-    #         [0,0,0,0,0,0,0,0],
-    #         #16:00
-    #         [0,0,0,0,0,0,0,0],
-    #         #16:45
-    #         [0,0,0,0,0,0,0,0],
-    #     ],
-    #     #Tue
-    #     [
-    #         #7:00
-    #         [0,0,0,0,0,0,0,0],
-    #         #7:50
-    #         [0,0,0,0,0,0,0,0],
-    #         #8:55
-    #         [0,0,0,0,0,0,0,0],
-    #         #9:40
-    #         [0,0,0,0,0,0,0,0],
-    #         #10:40
-    #         [0,0,0,0,0,0,0,0],
-    #         #11:25
-    #         [0,0,0,0,0,0,0,0],
-    #         #13:30
-    #         [0,0,0,0,0,0,0,0],
-    #         #14:15
-    #         [0,0,0,0,0,0,0,0],
-    #         #15:15
-    #         [0,0,0,0,0,0,0,0],
-    #         #16:00
-    #         [0,0,0,0,0,0,0,0],
-    #         #16:45
-    #         [0,0,0,0,0,0,0,0],
-    #     ],
-    #     #Wed
-    #     [
-    #         #7:00
-    #         [0,0,0,0,0,0,0,0],
-    #         #7:50
-    #         [0,0,0,0,0,0,0,0],
-    #         #8:55
-    #         [0,0,0,0,0,0,0,0],
-    #         #9:40
-    #         [0,0,0,0,0,0,0,0],
-    #         #10:40
-    #         [0,0,0,0,0,0,0,0],
-    #         #11:25
-    #         [0,0,0,0,0,0,0,0],
-    #         #13:30
-    #         [0,0,0,0,0,0,0,0],
-    #         #14:15
-    #         [0,0,0,0,0,0,0,0],
-    #         #15:15
-    #         [0,0,0,0,0,0,0,0],
-    #         #16:00
-    #         [0,0,0,0,0,0,0,0],
-    #         #16:45
-    #         [0,0,0,0,0,0,0,0],
-    #     ],
-    #     #Thu
-    #     [
-    #         #7:00
-    #         [0,0,0,0,0,0,0,0],
-    #         #7:50
-    #         [0,0,0,0,0,0,0,0],
-    #         #8:55
-    #         [0,0,0,0,0,0,0,0],
-    #         #9:40
-    #         [0,0,0,0,0,0,0,0],
-    #         #10:40
-    #         [0,0,0,0,0,0,0,0],
-    #         #11:25
-    #         [0,0,0,0,0,0,0,0],
-    #         #13:30
-    #         [0,0,0,0,0,0,0,0],
-    #         #14:15
-    #         [0,0,0,0,0,0,0,0],
-    #         #15:15
-    #         [0,0,0,0,0,0,0,0],
-    #         #16:00
-    #         [0,0,0,0,0,0,0,0],
-    #         #16:45
-    #         [0,0,0,0,0,0,0,0],
-    #     ],
-    #     #Fri
-    #     [
-    #         #7:00
-    #         [0,0,0,0,0,0,0,0],
-    #         #7:50
-    #         [0,0,0,0,0,0,0,0],
-    #         #8:55
-    #         [0,0,0,0,0,0,0,0],
-    #         #9:40
-    #         [0,0,0,0,0,0,0,0],
-    #         #10:40
-    #         [0,0,0,0,0,0,0,0],
-    #         #11:25
-    #         [0,0,0,0,0,0,0,0],
-    #         #13:30
-    #         [0,0,0,0,0,0,0,0],
-    #         #14:15
-    #         [0,0,0,0,0,0,0,0],
-    #         #15:15
-    #         [0,0,0,0,0,0,0,0],
-    #         #16:00
-    #         [0,0,0,0,0,0,0,0],
-    #         #16:45
-    #         [0,0,0,0,0,0,0,0],
-    #     ],
-    # ]
-    # necessary_classes = [
-    #     #1
-    #     [0,0,0,0,0,0,0,0,0,0],
-    #     #2
-    #     [0,0,0,0,0,0,0,0,0,0],
-    #     #3
-    #     [0,0,0,0,0,0,0,0,0,0],
-    #     #4
-    #     [0,0,0,0,0,0,0,0,0,0],
-    #     #5
-    #     [0,0,0,0,0,0,0,0,0,0],
-    #     #6
-    #     [0,0,0,0,0,0,0,0,0,0],
-    #     #7
-    #     [0,0,0,0,0,0,0,0,0,0],
-    #     #8
-    #     [0,0,0,0,0,0,0,0,0,0],
-    #     #9
-    #     [0,0,0,0,0,0,0,0,0,0],
-    # ]
-
-    ########  TEMPORARY  ########
-    days = range(0,2)
-    classes = range(0,2)
-    grades = range(0, 2)
-    teachers = range(0,2+1)
-
-    available_classes = [
-        #days
-        #Mon
-        [
-            #classes
-            #7:00
-            # #grades
-            [1,1],
-            #7:50
-            [1,1],
-        ],
-        #Tue
-        [
-            #7:00
-            [1,1],
-            #7:50
-            [1,1],
-        ],
-    ]
-
-    necessary_classes = [
-        #G1
-        [2,2],
-        #G2
-        [2,1]
-    ]
-
-    available_time = [
-        #MON
-        [
-            #7:00
-            [1,1],
-            #7:50
-            [1,1]
-        ],
-        #TUE
-        [
-            #7:00
-            [1,0],
-            #7:50
-            [1,1]
-        ]
-    ]
+def get_input():
+    days = range(6)
+    classes = range(11)
+    grades = range(get_number_of_grades())
+    teachers = range(get_number_of_teachers()+1)
+    data = get_data()
+    grades_available_classes = data["Turmas"]["AulaDisponivel"]
+    grades_necessary_classes = data["Turmas"]["AulasNecessarias"]
+    teachers_available_time = data["Professores"]["HorarioDisponivel"]
 
     total_aulas = len(days)*len(classes)
 
@@ -241,12 +42,10 @@ def returnInput():
             soma = 0
             for day in days:
                 for clas in classes:
-                    soma += available_classes[day][clas][grade]
-            necessary_classes[grade].append(total_aulas-soma)
+                    soma += grades_available_classes[day][clas][grade]
+            grades_necessary_classes[grade].append(total_aulas-soma)
 
-
-    return days, classes, grades, teachers, available_time, available_classes, necessary_classes
+    return days, classes, grades, teachers, teachers_available_time, grades_available_classes, grades_necessary_classes
 
 if __name__ == "__main__":
-    returnInput()
     print("This file can't be executed on its own, try main.py")

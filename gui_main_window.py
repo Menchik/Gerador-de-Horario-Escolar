@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
-from SG_Utils.subwindows import TeacherLoop, GradeLoop
+from SG_Utils.subwindows import TeacherLoop, GradeLoop, ResultLoop
 from solver import solve
+from storage import get_input
 
 def MainLoop():
 
@@ -38,9 +39,13 @@ def MainLoop():
             mainWindow.bring_to_front()
 
         elif event == "Gerar Horario":
-            print("Gerando")
-            #solve()
-
+            days, classes, grades, teachers, teachers_available_time, grades_available_classes, grades_necessary_classes = get_input()
+            solution = solve(days, classes, grades, teachers, teachers_available_time, grades_available_classes, grades_necessary_classes)
+            if solution:
+                ResultLoop(solution)
+            else:
+                sg.popup("Nenhuma solução foi encontrada")
+            
     mainWindow.close()
 
 if __name__ == "__main__":

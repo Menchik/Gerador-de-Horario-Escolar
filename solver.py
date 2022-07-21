@@ -4,6 +4,7 @@
 #################################################################################
 
 import pulp as plp
+import storage
 
 def solve(days, classes, grades, teachers, available_time, available_classes, necessary_classes):
     
@@ -26,7 +27,7 @@ def solve(days, classes, grades, teachers, available_time, available_classes, ne
     # Prints and returns the solution if an optimal one has been found
     if solution_status == 'Optimal':
         solution = extract_solution(grid_vars, days, classes, grades, teachers)
-        printSolution(solution, days, classes, grades)
+        #printSolution(solution, days, classes, grades)
         return solution
     return None
 
@@ -89,30 +90,30 @@ def add_teachers_constraints(prob, grid_vars, days, classes, grades, teachers, a
             for teacher in teachers[:-1]:
                 prob.addConstraint(plp.LpConstraint(e= plp.lpSum([grid_vars[day][clas][grade][teacher] for grade in grades]),
                                                     sense= plp.LpConstraintLE,
-                                                    rhs = available_time[teacher][day][clas],
-                                                    name= f"constraint_teacher_available_classes_{teacher}_{day}_{clas}"))
+                                                    rhs = available_time[day][clas][teacher],
+                                                    name= f"constraint_teacher_available_classes_{day}_{clas}_{teacher}"))
 
 def extract_solution(grid_vars, days, classes, grades, teachers):
-    nomes=["maria", "joao", "####"]
     solution = [[[0 for grade in grades] for clas in classes] for day in days]
+    names = storage.get_teacher_names()
+    names.append(" # # # ")
     for day in days:
         for clas in classes:
             for grade in grades:
                 for teacher in teachers:
                     if plp.value(grid_vars[day][clas][grade][teacher]):
-                        solution[day][clas][grade] = nomes[teacher]
+                        solution[day][clas][grade] = names[teacher]
     return solution
 
 def printSolution(solution, days, classes, grades):
 
     # Print the final result
     print(f"Final result:")
-    
-    for day in days:
-        print(f"\nDIA {day}:", end="")
-        for clas in classes:
-            print(f"\n    AULA {clas}:\n        |   T1  |  T2  |", end="\n        | ")
-            for grade in grades:
+    for grade in grades:
+        for day in days:
+            print(f"\nDIA {day}:", end="")
+            for clas in classes:
+                print(f"\n    AULA {clas}:", end="\n        | ")
                 print(solution[day][clas][grade],end=" | ")
 
 

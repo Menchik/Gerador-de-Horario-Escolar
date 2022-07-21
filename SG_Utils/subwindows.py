@@ -1,8 +1,8 @@
 import PySimpleGUI as sg
 import SG_Utils.teacher_window_maker as twm
 import SG_Utils.grade_window_maker as gwm
-
-
+import SG_Utils.result_window_maker as rwm
+from storage import get_number_of_teachers
 
 ######### TEACHER WINDOW FUNCTION #########
 def TeacherLoop():
@@ -51,7 +51,7 @@ def TeacherLoop():
         elif event == "Salvar":
             changed = False
             if values["-DROP-"] != "Lista de Professores":
-                data = [[values[f"-CHECK_{i}_{j}-"] for i in range(1, 7)] for j in range(1, 12)]
+                data = [[values[f"-CHECK_{i}_{j}-"] for i in range(1, 12)] for j in range(1, 7)]
                 twm.save(values["-DROP-"], data)
         #print(event, values)
 
@@ -102,8 +102,20 @@ def GradeLoop():
         elif event == "Salvar":
             changed = False
             if values["-DROP-"] != "Lista de Turmas":
-                classes_data = [[values[f"-CHECK_{i}_{j}-"] for i in range(1, 7)] for j in range(1, 12)]
-                teachers_data = [values[f"-SPIN_{i}-"] for i in range(twm.get_number_of_teachers())]
+                classes_data = [[values[f"-CHECK_{i}_{j}-"] for i in range(1, 12)] for j in range(1, 7)]
+                teachers_data = [values[f"-SPIN_{i}-"] for i in range(get_number_of_teachers())]
                 gwm.save(values["-DROP-"], classes_data, teachers_data)
             else:
                 sg.popup("\"Lista de Turmas\" não é uma turma válida")
+
+
+def ResultLoop(solution):
+
+    resultW = rwm.make_results_window(solution)
+    
+    while True:
+
+        event, values = resultW.read()
+
+        if event == sg.WIN_CLOSED:
+            break

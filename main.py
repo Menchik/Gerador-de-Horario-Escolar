@@ -1,4 +1,4 @@
-from main_window import MainLoop
+from gui_main_window import MainLoop
 
 def main():
     MainLoop()

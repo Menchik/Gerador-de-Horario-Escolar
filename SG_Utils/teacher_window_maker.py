@@ -6,14 +6,10 @@ teachers_names = ["Lista de Professores"]
 days_of_the_week = ["        ","Seg ", "Ter ", "Qua ", "Qui ", "Sex ", "Sab"]
 classes = ["","7:00  ", "7:50  ", "8:55  ", "9:40  ", "10:40", "11:25", "13:30", "14:15", "15:15", "16:00", "16:45"]
 
-def get_number_of_teachers():
-    return len(teachers_names)
-
 def get_teachers_from_file():
-    data = stg.get_data()
-    for key in data["Professores"].keys():
-        if key not in teachers_names:
-            teachers_names.append(key)
+    for name in stg.get_teacher_names():
+        if name not in teachers_names:
+            teachers_names.append(name)
 
 def add(teacherW, name):
     if name not in teachers_names:
@@ -22,8 +18,11 @@ def add(teacherW, name):
         data = stg.get_data()
         for i in range(6):
             for j in range(11):
-                data["Professores"]["Teste"][i][j].append(0)
+                data["Professores"]["HorarioDisponivel"][i][j].append(0)
         #data["Professores"][name] = [[False for _ in range(6)] for _ in range(11)]
+        data["Professores"]["Nomes"].append(name)
+        for grade in range(stg.get_number_of_grades()):
+            data["Turmas"]["AulasNecessarias"][grade].append(0)
         stg.save_to_file(data)
         access(teacherW, name)
     else:
@@ -34,10 +33,13 @@ def remove(teacherW, name):
     if name != "Lista de Professores":
         if sg.popup_yes_no(f"Certeza que deseja remover {name}?") == "Yes":
             data = stg.get_data()
+            names = data["Professores"]["Nomes"]
             for i in range(6):
                 for j in range(11):
-                    del data["Professores"]["Teste"][i][j][teachers_names.index(name)-1]
-            #data["Professores"].pop(name)
+                    del data["Professores"]["HorarioDisponivel"][i][j][names.index(name)]
+            data["Professores"]["Nomes"].remove(name)
+            for grade in range(stg.get_number_of_grades()):
+                del data["Turmas"]["AulasNecessarias"][grade][teachers_names.index(name)-1]
             stg.save_to_file(data)
             teachers_names.remove(name)
             teacherW.Element("-DROP-").update(values=teachers_names, value="Lista de Professores")
@@ -46,44 +48,48 @@ def remove(teacherW, name):
         sg.popup("Esse elemento não pode ser removido")
 
 def save(name, data):
-    new_data = stg.get_data()    
+    new_data = stg.get_data()
+    names = new_data["Professores"]["Nomes"]
     for i in range(6):
         for j in range(11):
-            data["Professores"]["Teste"][i][j][teachers_names.index(name)-1] = data[i][j]
+            if data[i][j]:
+                new_data["Professores"]["HorarioDisponivel"][i][j][names.index(name)] = 1
+            else:
+                new_data["Professores"]["HorarioDisponivel"][i][j][names.index(name)] = 0
     #new_data["Professores"][name] = data
     stg.save_to_file(new_data)
 
 def select(teacherW, true_or_false):
-    for j in range(1, 12):
-        for i in range(1, 7):
+    for i in range(1, 12):
+        for j in range(1, 7):
                 teacherW.Element(f"-CHECK_{i}_{j}-").update(value=true_or_false)
 
 def access(teacherW, name):
     if name == "Lista de Professores":
-        for j in range(1, 12):
-            for i in range(1, 7):
+        for i in range(1, 12):
+            for j in range(1, 7):
                     teacherW.Element(f"-CHECK_{i}_{j}-").update(value=False)
     else:
         tdata = stg.get_data()
-        tdata = tdata["Professores"][name]
-        for j in range(1, 12):
-            for i in range(1, 7):
-                if tdata[j-1][i-1]:
+        names = tdata["Professores"]["Nomes"]
+        for i in range(1, 12):
+            for j in range(1, 7):
+                if tdata["Professores"]["HorarioDisponivel"][j-1][i-1][names.index(name)]:
                     teacherW.Element(f"-CHECK_{i}_{j}-").update(value=True)
                 else:
                     teacherW.Element(f"-CHECK_{i}_{j}-").update(value=False)
 
 def make_teachers_window():
 
-    colum = [[0 for i in range(7)] for j in range(12)]
-    for j in range(12):
-        for i in range(7):
-            if j == 0:
-                colum[j][i] = sg.Text(days_of_the_week[i])
-            elif i == 0:
-                colum[j][i] = sg.Text(classes[j])
+    colum = [[0 for _ in range(7)] for _ in range(12)]
+    for i in range(12):
+        for j in range(7):
+            if i == 0:
+                colum[i][j] = sg.Text(days_of_the_week[j])
+            elif j == 0:
+                colum[i][j] = sg.Text(classes[i])
             else:
-                colum[j][i] = sg.Checkbox("", pad=((3,10), (0,0)), key=f"-CHECK_{i}_{j}-", enable_events=True)
+                colum[i][j] = sg.Checkbox("", pad=((3,10), (0,0)), key=f"-CHECK_{i}_{j}-", enable_events=True)
 
     TeacherWindowLayout =   [   [sg.Text("Especifique os horários de cada professor", font="Arial 26 bold")],
                                 [sg.Input("Insira o nome aqui", key="-IN_NAME-", enable_events=True), sg.Button("Adicionar", button_color=("white", "green"))],
