@@ -2,13 +2,14 @@ import PySimpleGUI as sg
 from sqlalchemy import column
 from storage import get_grades_names
 
-days_of_the_week = ["        ","Seg ", "Ter ", "Qua ", "Qui ", "Sex ", "Sab"]
-classes = ["","7:00  ", "7:50  ", "8:55  ", "9:40  ", "10:40", "11:25", "13:30", "14:15", "15:15", "16:00", "16:45"]
+from openpyxl import Workbook
+
+from constants import classes, days_of_the_week
 
 def get_colum(solution, grade):
-    colum = [[0 for _ in range(7)] for _ in range(12)]
-    for i in range(12):
-        for j in range(7):
+    colum = [[0 for _ in range(len(days_of_the_week))] for _ in range(len(classes))]
+    for i in range(len(classes)):
+        for j in range(len(days_of_the_week)):
             if i == 0:
                 colum[i][j] = sg.Text(days_of_the_week[j])
             elif j == 0:
@@ -18,7 +19,7 @@ def get_colum(solution, grade):
     return colum
 
 #def get_column(solution, grade, num):
-#    column = [0 for _ in range 12]
+#    column = [0 for _ in range len(classes)]
 
 def make_results_window(solution):
 
@@ -26,10 +27,41 @@ def make_results_window(solution):
 
 #    layout = []
 
+    workbook = Workbook()
+    default_sheet = workbook.active
+    default_sheet.title = "Resumo"
+
+    default_sheet.append(['', '']+get_grades_names())
+
+    day_position = int((len(classes))/2)+1
+
+    for i, day in enumerate(days_of_the_week[1:]):
+        default_sheet['A'+str(day_position+len(classes)*i)] = day
+
+        for j, class_ in enumerate(classes[1:]):
+            default_sheet['B'+str(j+2+len(classes)*i)] = class_
+
+        for grade in range(len(get_grades_names())):
+            for j in range(len(classes[1:])):
+                letter = chr(grade+1+ord('B'))
+                solution[i][j][grade]
+                default_sheet[letter+str(j+2+len(classes)*i)] = solution[i][j][grade]
+
+    for num, grades in enumerate(get_grades_names()):
+
+        new_sheet = workbook.create_sheet(title=grades)
+
+        new_sheet.append(days_of_the_week)
+        for i in range(len(classes)-1):
+            new_sheet.append([classes[i+1]] + [solution[j-1][i][num] for j in range(1, len(days_of_the_week))])
+        
+
+    workbook.save('result.xlsx')
+
     for num, grade in enumerate(get_grades_names()):
         TeacherWindowLayout.append([sg.Text(f"{grade}:")])
         TeacherWindowLayout.append([sg.Column(get_colum(solution, num))])
-        #layout.append([sg.Column(get_column(solution, num, i))] for i in range(7))
+        #layout.append([sg.Column(get_column(solution, num, i))] for i in range(len(days_of_the_week)))
 
     #TeacherWindowLayout.append(sg.Column(layout))
 

@@ -1,7 +1,11 @@
 import PySimpleGUI as sg
+import os
+from createDB import createDB
+
 from SG_Utils.subwindows import TeacherLoop, GradeLoop, ResultLoop
 from solver import solve
 from storage import get_input
+from constants import classes, days_of_the_week
 
 def MainLoop():
 
@@ -12,6 +16,9 @@ def MainLoop():
                 [sg.Button("Turmas")],
                 [sg.Button("Gerar Horario")]]
     sg.theme("DarkGrey")   # Add a touch of color
+
+    if not os.path.exists("myfile.json"):
+        createDB(len(classes)-1, len(days_of_the_week)-1)
 
     # Create the Window
     mainWindow = sg.Window("Gerador de Horário Escolar", MainWindowLayout, element_justification='c')
@@ -27,20 +34,20 @@ def MainLoop():
         #     print("Abrindo Configurações")
 
         elif event == "Professores":
-            mainWindow.Disable()
+            # mainWindow.Disable()
             TeacherLoop()
-            mainWindow.Enable()
+            # mainWindow.Enable()
             mainWindow.bring_to_front()
 
         elif event == "Turmas":
-            mainWindow.Disable()
+            # mainWindow.Disable()
             GradeLoop()
-            mainWindow.Enable()
+            # mainWindow.Enable()
             mainWindow.bring_to_front()
 
         elif event == "Gerar Horario":
-            days, classes, grades, teachers, teachers_available_time, grades_available_classes, grades_necessary_classes = get_input()
-            solution = solve(days, classes, grades, teachers, teachers_available_time, grades_available_classes, grades_necessary_classes)
+            days, clas, grades, teachers, teachers_available_time, grades_available_classes, grades_necessary_classes = get_input()
+            solution = solve(days, clas, grades, teachers, teachers_available_time, grades_available_classes, grades_necessary_classes)
             if solution:
                 ResultLoop(solution)
             else:

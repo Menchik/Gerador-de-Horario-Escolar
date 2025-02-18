@@ -1,10 +1,12 @@
 import PySimpleGUI as sg
 import storage as stg
 
+from constants import classes, days_of_the_week
+
+
+import sys
 ######### TEACHERS WINDOW #########
 grades_names = ["Lista de Turmas"]
-days_of_the_week = ["        ","Seg ", "Ter ", "Qua ", "Qui ", "Sex ", "Sab"]
-classes = ["","7:00  ", "7:50  ", "8:55  ", "9:40  ", "10:40", "11:25", "13:30", "14:15", "15:15", "16:00", "16:45"]
 
 def get_grades_from_file():
     data = stg.get_data()
@@ -17,10 +19,10 @@ def add(gradeW, name):
         grades_names.append(name)
         gradeW.Element("-DROP-").update(values=grades_names, value=name)
         data = stg.get_data()
-        for i in range(6):
-            for j in range(11):
+        for i in range(len(days_of_the_week)-1):
+            for j in range(len(classes)-1):
                 data["Turmas"]["AulaDisponivel"][i][j].append(0)
-        #data["Turmas"][name] = [[False for _ in range(6)] for _ in range(11)]
+        #data["Turmas"][name] = [[False for _ in range(len(days_of_the_week)-1)] for _ in range(len(classes)-1)]
         data["Turmas"]["Nomes"].append(name)
         data["Turmas"]["AulasNecessarias"].append([0 for _ in range(stg.get_number_of_teachers())])
         stg.save_to_file(data)
@@ -34,8 +36,8 @@ def remove(gradeW, name):
         if sg.popup_yes_no(f"Certeza que deseja remover {name}?") == "Yes":
             data = stg.get_data()
             names = data["Turmas"]["Nomes"]
-            for i in range(6):
-                for j in range(11):
+            for i in range(len(classes)-1):
+                for j in range(len(days_of_the_week)-1):
                     del data["Turmas"]["AulaDisponivel"][i][j][names.index(name)]
             del data["Turmas"]["AulasNecessarias"][names.index(name)]
             data["Turmas"]["Nomes"].remove(name)
@@ -49,8 +51,8 @@ def remove(gradeW, name):
 def save(name, classes_data, teachers_data):
     new_data = stg.get_data()
     names = new_data["Turmas"]["Nomes"]
-    for i in range(6):
-        for j in range(11):
+    for i in range(len(days_of_the_week)-1):
+        for j in range(len(classes)-1):
             if classes_data[i][j]:
                 new_data["Turmas"]["AulaDisponivel"][i][j][names.index(name)] = 1
             else:
@@ -59,22 +61,22 @@ def save(name, classes_data, teachers_data):
     stg.save_to_file(new_data)
 
 def select(gradeW, true_or_false):
-    for i in range(1, 12):
-        for j in range(1, 7):
+    for i in range(1, len(classes)):
+        for j in range(1, len(days_of_the_week)):
                 gradeW.Element(f"-CHECK_{i}_{j}-").update(value=true_or_false)
 
 def access(gradeW, name):
     if name == "Lista de Turmas":
-        for i in range(1, 12):
-            for j in range(1, 7):
+        for i in range(1, len(classes)):
+            for j in range(1, len(days_of_the_week)):
                     gradeW.Element(f"-CHECK_{i}_{j}-").update(value=False)
         for teacher in range(stg.get_number_of_teachers()):
             gradeW.Element(f"-SPIN_{teacher}-").update(value=0)
     else:
         tdata = stg.get_data()
         names = tdata["Turmas"]["Nomes"]
-        for i in range(1, 12):
-            for j in range(1, 7):
+        for i in range(1, len(classes)):
+            for j in range(1, len(days_of_the_week)):
                 if tdata["Turmas"]["AulaDisponivel"][j-1][i-1][names.index(name)]:
                     gradeW.Element(f"-CHECK_{i}_{j}-").update(value=True)
                 else:
@@ -84,9 +86,9 @@ def access(gradeW, name):
 
 def make_grades_window():
 
-    checkColumn = [[0 for _ in range(7)] for _ in range(12)]
-    for i in range(12):
-        for j in range(7):
+    checkColumn = [[0 for _ in range(len(days_of_the_week))] for _ in range(len(classes))]
+    for i in range(len(classes)):
+        for j in range(len(days_of_the_week)):
             if i == 0:
                 checkColumn[i][j] = sg.Text(days_of_the_week[j])
             elif j == 0:

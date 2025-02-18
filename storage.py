@@ -1,5 +1,7 @@
 import json
 
+from constants import classes, days_of_the_week
+
 def get_data():
     with open("myfile.json", "r") as input_file:
         data = json.load(input_file)
@@ -27,8 +29,8 @@ def save_to_file(new_data):
         file.write(new_data)
 
 def get_input():
-    days = range(6)
-    classes = range(11)
+    dayCount = range(len(days_of_the_week)-1)
+    classCount = range(len(classes)-1)
     grades = range(get_number_of_grades())
     teachers = range(get_number_of_teachers()+1)
     data = get_data()
@@ -36,16 +38,20 @@ def get_input():
     grades_necessary_classes = data["Turmas"]["AulasNecessarias"]
     teachers_available_time = data["Professores"]["HorarioDisponivel"]
 
-    total_aulas = len(days)*len(classes)
+    total_aulas = len(dayCount)*len(classCount)
 
     for grade in grades:
-            soma = 0
-            for day in days:
-                for clas in classes:
+        soma = 0
+        for day in dayCount:
+            for clas in classCount:
+                try:
                     soma += grades_available_classes[day][clas][grade]
-            grades_necessary_classes[grade].append(total_aulas-soma)
+                except:
+                    print(grades_available_classes)
+                    print(day, clas, grade)
+        grades_necessary_classes[grade].append(total_aulas-soma)
 
-    return days, classes, grades, teachers, teachers_available_time, grades_available_classes, grades_necessary_classes
+    return dayCount, classCount, grades, teachers, teachers_available_time, grades_available_classes, grades_necessary_classes
 
 if __name__ == "__main__":
     print("This file can't be executed on its own, try main.py")
