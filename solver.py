@@ -8,16 +8,29 @@ import storage
 
 def solve(days, classes, grades, teachers, available_time, available_classes, necessary_classes):
     
-    prob = plp.LpProblem("School_Scheduler") # Create the linear programming problem
+    # Create the linear programming problem
+    prob = plp.LpProblem("School_Scheduler") 
 
-    grid_vars = plp.LpVariable.dicts("grid_value", (days,classes,grades,teachers), cat='Binary') # Decision Variable/Target variable
+    # Decision Variable/Target variable
+    grid_vars = plp.LpVariable.dicts("grid_value", (days,classes,grades,teachers), cat='Binary') 
 
-    # There is no objetive function since every solution is equally valid (for now)
+    # Create Objective function
+    prob += plp.lpSum(
+        [grid_vars[day][clas][grade][teacher]*
+        (2 if classes.index(clas) > 5 else (1.5 if classes.index(clas) == 0 else 1))
+        for day in days
+        for clas in classes
+        for grade in grades
+        for teacher in teachers]
+    ), "Objective Function" # The objective function is not used in this case
 
     add_constraints(prob, grid_vars, days, classes, grades, teachers, available_time, available_classes, necessary_classes) # Create all of the constraints needed for the problem
 
-    #prob.writeLP("filename.txt", writeSOS=1, mip=1, max_length=100) # Creates a file with all contraints so it's possible to see errors
+    # Creates a file with all contraints so it's possible to see errors
+    prob.writeLP("filename.txt", writeSOS=1, mip=1, max_length=100) 
     
+
+
     prob.solve() # Solve the problem given all constraints
 
     
@@ -92,6 +105,16 @@ def add_teachers_constraints(prob, grid_vars, days, classes, grades, teachers, a
                                                     sense= plp.LpConstraintLE,
                                                     rhs = available_time[day][clas][teacher],
                                                     name= f"constraint_teacher_available_classes_{day}_{clas}_{teacher}"))
+                
+        # Constraint that makes so that no teacher has more then 2 classes in a row with the same grade
+        for teacher in teachers[:-1]:
+            for grade in grades:
+                for clas in classes[2:]:
+                    prob.addConstraint(plp.LpConstraint(e= plp.lpSum([grid_vars[day][clas-i][grade][teacher] for i in range(3)]),
+                                                        sense= plp.LpConstraintLE,
+                                                        rhs = 2,
+                                                        name= f"constraint_teacher_classes_in_a_row_{day}_{clas}_{grade}_{teacher}"))
+
 
 def extract_solution(grid_vars, days, classes, grades, teachers):
     solution = [[[0 for grade in grades] for clas in classes] for day in days]
