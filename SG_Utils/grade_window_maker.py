@@ -31,12 +31,15 @@ def add(gradeW, name):
 
 def remove(gradeW, name):
     if name != "Lista de Turmas":
-        if sg.popup_yes_no(f"Certeza que deseja remover {name}?") == "Yes":
+        if sg.popup_yes_no(f"Certeza que deseja remover a turma: '{name}'?") == "Yes":
             data = stg.get_data()
             names = data["Turmas"]["Nomes"]
             for i in range(len(classes)-1):
                 for j in range(len(days_of_the_week)-1):
-                    del data["Turmas"]["AulaDisponivel"][i][j][names.index(name)]
+                    try:
+                        del data["Turmas"]["AulaDisponivel"][i][j][names.index(name)]
+                    except:
+                        print(i, j, names.index(name))
             del data["Turmas"]["AulasNecessarias"][names.index(name)]
             data["Turmas"]["Nomes"].remove(name)
             stg.save_to_file(data)
