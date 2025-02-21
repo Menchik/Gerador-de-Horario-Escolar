@@ -3,8 +3,6 @@ import storage as stg
 
 from constants import classes, days_of_the_week
 
-
-import sys
 ######### TEACHERS WINDOW #########
 grades_names = ["Lista de Turmas"]
 

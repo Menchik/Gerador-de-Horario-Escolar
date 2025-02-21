@@ -32,7 +32,7 @@ def get_input():
     dayCount = range(len(days_of_the_week)-1)
     classCount = range(len(classes)-1)
     grades = range(get_number_of_grades())
-    teachers = range(get_number_of_teachers()+1)
+    teachers = range(get_number_of_teachers())
     data = get_data()
     grades_available_classes = data["Turmas"]["AulaDisponivel"]
     grades_necessary_classes = data["Turmas"]["AulasNecessarias"]

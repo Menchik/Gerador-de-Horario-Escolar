@@ -44,7 +44,6 @@ def make_results_window(solution):
         for grade in range(len(get_grades_names())):
             for j in range(len(classes[1:])):
                 letter = chr(grade+1+ord('B'))
-                solution[i][j][grade]
                 default_sheet[letter+str(j+2+len(classes)*i)] = solution[i][j][grade]
 
     for num, grades in enumerate(get_grades_names()):
